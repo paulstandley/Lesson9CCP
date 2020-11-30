@@ -103,7 +103,54 @@ Cents1 operator+(int value, const Cents1& c1)
     return { c1.m_cents + value };
 }
 
+class MinMax0
+{
+private:
+    int m_min; // The min value seen so far
+    int m_max; // The max value seen so far
 
+public:
+    MinMax0(int min, int max)
+    {
+        m_min = min;
+        m_max = max;
+    }
+
+    int getMin0() const { return m_min; }
+    int getMax0() const { return m_max; }
+
+    friend MinMax0 operator+(const MinMax0& m1, const MinMax0& m2);
+    friend MinMax0 operator+(const MinMax0& m, int value);
+    friend MinMax0 operator+(int value, const MinMax0& m);
+};
+
+MinMax0 operator+(const MinMax0& m1, const MinMax0& m2)
+{
+    // Get the minimum value seen in m1 and m2
+    int min{ m1.m_min < m2.m_min ? m1.m_min : m2.m_min };
+
+    // Get the maximum value seen in m1 and m2
+    int max{ m1.m_max > m2.m_max ? m1.m_max : m2.m_max };
+
+    return { min, max };
+}
+
+MinMax0 operator+(const MinMax0& m, int value)
+{
+    // Get the minimum value seen in m and value
+    int min{ m.m_min < value ? m.m_min : value };
+
+    // Get the maximum value seen in m and value
+    int max{ m.m_max > value ? m.m_max : value };
+
+    return { min, max };
+}
+
+MinMax0 operator+(int value, const MinMax0& m)
+{
+    // call operator+(MinMax, int)
+    return { m + value };
+}
 
 
 void overloading_arithmetic_operators_using_friend_functions()
@@ -235,9 +282,45 @@ void overloading_arithmetic_operators_using_friend_functions()
     -- that’s because they do the same thing, 
     they just take their parameters in a different order.
     
-    ///////////////////////////////////////////////////////////////////////////////
+    */
 
+    MinMax0 m1{ 10, 15 };
+    MinMax0 m2{ 8, 11 };
+    MinMax0 m3{ 3, 12 };
 
+    MinMax0 mFinal0{ m1 + m2 + 5 + 8 + m3 + 16 };
+
+    std::cout << "Result: (" << mFinal0.getMin0() << ", " <<
+        mFinal0.getMax0() << ")\n";
+
+    /*The MinMax class keeps track of the minimum and maximum 
+    values that it has seen so far. 
+    We have overloaded the + operator 3 times, 
+    so that we can add two MinMax objects together,
+    or add integers to MinMax objects.
+
+    Let’s talk a little bit more about how “
+    MinMax mFinal = m1 + m2 + 5 + 8 + m3 + 16” evaluates.
+    Remember that operator+ has higher precedence than operator=, 
+    and operator+ evaluates from left to right,
+    so m1 + m2 evaluate first. 
+    This becomes a call to operator+(m1, m2),
+    which produces the return value MinMax(8, 15). 
+    Then MinMax(8, 15) + 5 evaluates next. 
+    This becomes a call to operator+(MinMax(8, 15), 5), 
+    which produces return value MinMax(5, 15). 
+    Then MinMax(5, 15) + 8 evaluates in the same way to produce MinMax(5, 15). 
+    Then MinMax(5, 15) + m3 evaluates to produce MinMax(3, 15).
+    And finally, MinMax(3, 15) + 16 evaluates to MinMax(3, 16).
+    This final result is then assigned to mFinal.
+
+    In other words, this expression evaluates as 
+    “MinMax mFinal = (((((m1 + m2) + 5) + 8) + m3) + 16)”, 
+    with each successive operation returning a 
+    MinMax object that becomes the left-hand operand for the following operator.
+
+    /////////////////////////////////////////////////////////////////////////////////
+    
     */
 }
 
