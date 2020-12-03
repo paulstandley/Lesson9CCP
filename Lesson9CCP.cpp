@@ -34,7 +34,31 @@ public:
     {
         std::cout << m_numerator << '/' << m_denominator << '\n';
     }
+
+    // We don't want to pass by value, because copying is slow.
+    // We can't and shouldn't pass by non-const reference, because then
+    // our functions wouldn't work with r-values.
+    friend Fraction1 operator*(const Fraction1& f1, const Fraction1& f2);
+    friend Fraction1 operator*(const Fraction1& f1, int value);
+    friend Fraction1 operator*(int value, const Fraction1& f1);
 };
+
+Fraction1 operator*(const Fraction1& f1, const Fraction1& f2)
+{
+    return { f1.m_numerator * f2.m_numerator, f1.m_denominator * f2.m_denominator };
+}
+
+Fraction1 operator*(const Fraction1& f1, int value)
+{
+    return { f1.m_numerator * value, f1.m_denominator };
+}
+
+Fraction1 operator*(int value, const Fraction1& f1)
+{
+    return { f1.m_numerator * value, f1.m_denominator };
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 void lesson92quiz()
 {
@@ -46,17 +70,51 @@ void lesson92quiz()
     
     */
 
-    Fraction0 f10{ 1, 4 };
-    f10.print();
+    Fraction0 f1{ 1, 4 };
+    f1.print();
 
-    Fraction0 f20{ 1, 2 };
-    f20.print();
+    Fraction0 f2{ 1, 2 };
+    f2.print();
 
-    Fraction1 f11{ 2, 6 };
+    Fraction1 f3{ 2, 6 };
+    f3.print();
+
+    Fraction1 f4{ 1, 3 };
+    f4.print();
+
+    /*b) Add overloaded multiplication operators to handle multiplication 
+    between a Fraction and integer, 
+    and between two Fractions. 
+    Use the friend function method.
+
+    Hint: To multiply two fractions, 
+    first multiply the two numerators together, 
+    and then multiply the two denominators together. 
+    To multiply a fraction and an integer, 
+    multiply the numerator of the fraction by the integer 
+    and leave the denominator alone.
+    
+    */
+
+    Fraction1 f11{ 2, 5 };
     f11.print();
 
-    Fraction1 f21{ 1, 3 };
+    Fraction1 f21{ 3, 8 };
     f21.print();
+
+    Fraction1 f31{ f11 * f21 };
+    f31.print();
+
+    Fraction1 f41{ f11 * 2 };
+    f41.print();
+
+    Fraction1 f51{ 2 * f21 };
+    f51.print();
+
+    Fraction1 f61{ Fraction1{1, 2} *Fraction1{2, 3} *Fraction1{3, 4} };
+    f61.print();
+
+
 }
 
 int main()
