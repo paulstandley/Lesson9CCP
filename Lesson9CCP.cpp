@@ -60,6 +60,48 @@ Fraction1 operator*(int value, const Fraction1& f1)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class Fraction
+{
+private:
+    int m_numerator;
+    int m_denominator;
+
+public:
+    Fraction(int numerator = 0, int denominator = 1) :
+        m_numerator{ numerator }, m_denominator{ denominator }
+    {
+    }
+
+    // We don't want to pass by value, because copying is slow.
+    // We can't and shouldn't pass by non-const reference, because then
+    // our functions wouldn't work with r-values.
+    friend Fraction operator*(const Fraction& f1, const Fraction& f2);
+    //friend Fraction operator*(const Fraction& f1, int value);
+    //friend Fraction operator*(int value, const Fraction& f1);
+
+    void print() const
+    {
+        std::cout << m_numerator << '/' << m_denominator << '\n';
+    }
+};
+
+Fraction operator*(const Fraction& f1, const Fraction& f2)
+{
+    return { f1.m_numerator * f2.m_numerator, f1.m_denominator * f2.m_denominator };
+}
+
+//Fraction operator*(const Fraction& f1, int value)
+//{
+//    return { f1.m_numerator * value, f1.m_denominator };
+//}
+
+//Fraction operator*(int value, const Fraction& f1)
+//{
+//    return { f1.m_numerator * value, f1.m_denominator };
+//}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void lesson92quiz()
 {
     /*Question #1
@@ -70,17 +112,19 @@ void lesson92quiz()
     
     */
 
-    Fraction0 f1{ 1, 4 };
-    f1.print();
+    Fraction0 f19{ 1, 4 };
+    f19.print();
 
-    Fraction0 f2{ 1, 2 };
-    f2.print();
+    Fraction0 f29{ 1, 2 };
+    f29.print();
 
-    Fraction1 f3{ 2, 6 };
-    f3.print();
+    Fraction1 f39{ 2, 6 };
+    f39.print();
 
-    Fraction1 f4{ 1, 3 };
-    f4.print();
+    Fraction1 f49{ 1, 3 };
+    f49.print();
+
+    std::cout << "------------------" << '\n';
 
     /*b) Add overloaded multiplication operators to handle multiplication 
     between a Fraction and integer, 
@@ -108,13 +152,55 @@ void lesson92quiz()
     Fraction1 f41{ f11 * 2 };
     f41.print();
 
-    Fraction1 f51{ 2 * f21 };
+    Fraction1 f51{ 2 * f21 };  
     f51.print();
 
     Fraction1 f61{ Fraction1{1, 2} *Fraction1{2, 3} *Fraction1{3, 4} };
     f61.print();
 
+    std::cout << "------------------" << '\n';
 
+    /*c) Why does the program continue to work correctly if we remove
+    the operators for integer multiplication from the previous solution?
+
+    // We can remove these operators, and the program continues to work
+
+    Fraction operator*(const Fraction &f1, int value);
+    Fraction operator*(int value, const Fraction &f1);
+
+    We still have
+
+    Fraction operator*(const Fraction &f1, const Fraction &f2);
+
+    The Fraction(int, int) constructor will be used to construct a new Fraction
+    from 2. This new Fraction is then multiplied by f2 using the 
+    Fraction * Fraction operator.
+
+    The additional conversion from 2 to a Fraction slows down the program,
+    making it slower than the implementation with overloaded operators for 
+    integer multiplication.
+    
+    */
+
+    Fraction f1{ 2, 5 };
+    f1.print();
+
+    Fraction f2{ 3, 8 };
+    f2.print();
+
+    Fraction f3{ f1 * f2 };
+    f3.print();
+
+    Fraction f4{ f1 * 2 };
+    f4.print();
+
+    Fraction f5{ 2 * f2 };
+    f5.print();
+
+    Fraction f6{ Fraction{1, 2} *Fraction{2, 3} *Fraction{3, 4} };
+    f6.print();
+
+    std::cout << "------------------" << '\n';
 }
 
 int main()
