@@ -60,14 +60,14 @@ Fraction1 operator*(int value, const Fraction1& f1)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Fraction
+class Fraction44
 {
 private:
     int m_numerator;
     int m_denominator;
 
 public:
-    Fraction(int numerator = 0, int denominator = 1) :
+    Fraction44(int numerator = 0, int denominator = 1) :
         m_numerator{ numerator }, m_denominator{ denominator }
     {
     }
@@ -75,7 +75,7 @@ public:
     // We don't want to pass by value, because copying is slow.
     // We can't and shouldn't pass by non-const reference, because then
     // our functions wouldn't work with r-values.
-    friend Fraction operator*(const Fraction& f1, const Fraction& f2);
+    friend Fraction44 operator*(const Fraction44& f1, const Fraction44& f2);
     //friend Fraction operator*(const Fraction& f1, int value);
     //friend Fraction operator*(int value, const Fraction& f1);
 
@@ -85,7 +85,7 @@ public:
     }
 };
 
-Fraction operator*(const Fraction& f1, const Fraction& f2)
+Fraction44 operator*(const Fraction44& f1, const Fraction44& f2)
 {
     return { f1.m_numerator * f2.m_numerator, f1.m_denominator * f2.m_denominator };
 }
@@ -99,6 +99,63 @@ Fraction operator*(const Fraction& f1, const Fraction& f2)
 //{
 //    return { f1.m_numerator * value, f1.m_denominator };
 //}
+
+// This version of the Fraction class auto-reduces fractions
+class Fraction
+{
+private:
+    int m_numerator;
+    int m_denominator;
+
+public:
+    Fraction(int numerator = 0, int denominator = 1) :
+        m_numerator{ numerator }, m_denominator{ denominator }
+    {
+        // We put reduce() in the constructor to ensure any fractions we make get reduced!
+        // Since all of the overloaded operators create new Fractions, we can guarantee this will get called here
+        reduce();
+    }
+
+    // We'll make gcd static so that it can be part of class Fraction without requiring an object of type Fraction to use
+    static int gcd(int a, int b)
+    {
+        return (b == 0) ? (a > 0 ? a : -a) : gcd(b, a % b);
+    }
+
+    void reduce()
+    {
+        if (m_numerator != 0 && m_denominator != 0)
+        {
+            int gcd{ Fraction::gcd(m_numerator, m_denominator) };
+            m_numerator /= gcd;
+            m_denominator /= gcd;
+        }
+    }
+
+    friend Fraction operator*(const Fraction& f1, const Fraction& f2);
+    friend Fraction operator*(const Fraction& f1, int value);
+    friend Fraction operator*(int value, const Fraction& f1);
+
+    void print() const
+    {
+        std::cout << m_numerator << '/' << m_denominator << '\n';
+    }
+};
+
+Fraction operator*(const Fraction& f1, const Fraction& f2)
+{
+    return { f1.m_numerator * f2.m_numerator, f1.m_denominator * f2.m_denominator };
+}
+
+Fraction operator*(const Fraction& f1, int value)
+{
+    return { f1.m_numerator * value, f1.m_denominator };
+}
+
+Fraction operator*(int value, const Fraction& f1)
+{
+    return { f1.m_numerator * value, f1.m_denominator };
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -182,6 +239,56 @@ void lesson92quiz()
     
     */
 
+    Fraction44 f144{ 2, 5 };
+    f144.print();
+
+    Fraction44 f244{ 3, 8 };
+    f244.print();
+
+    Fraction44 f344{ f144 * f244 };
+    f344.print();
+
+    Fraction44 f444{ f144 * 2 };
+    f444.print();
+
+    Fraction44 f544{ 2 * f244 };
+    f544.print();
+
+    Fraction44 f644{ Fraction44{1, 2} *Fraction44{2, 3} *Fraction44{3, 4} };
+    f644.print();
+
+    std::cout << "------------------" << '\n';
+
+    /*d) If we remove the const from the Fraction * Fraction operator, 
+    the following line from the main function no longer works. Why?
+
+    The non-const multiplication operator looks like this
+
+    Fraction operator*(Fraction &f1, Fraction &f2)
+
+    This doesn't work anymore
+
+    Fraction f6{ Fraction{1, 2} * Fraction{2, 3} * Fraction{3, 4} };
+
+    We’re multiplying temporary Fraction objects,
+    but non-const references cannot bind to temporaries.
+    
+    e) Extra credit: the fraction 2/4 is the same as 1/2, 
+    but 2/4 is not reduced to the lowest terms. 
+    We can reduce any given fraction to lowest terms by finding the greatest
+    common divisor (GCD) between the numerator and denominator, 
+    and then dividing both the numerator and denominator by the GCD.
+
+    int gcd(int a, int b) {
+    return (b == 0) ? (a > 0 ? a : -a) : gcd(b, a % b);
+
+    Add this function to your class, 
+    and write a member function named reduce() 
+    that reduces your fraction. 
+    Make sure all fractions are properly reduced.
+
+    */
+
     Fraction f1{ 2, 5 };
     f1.print();
 
@@ -200,23 +307,9 @@ void lesson92quiz()
     Fraction f6{ Fraction{1, 2} *Fraction{2, 3} *Fraction{3, 4} };
     f6.print();
 
-    std::cout << "------------------" << '\n';
+    Fraction f7{ 0, 6 };
+    f7.print();
 
-    /*d) If we remove the const from the Fraction * Fraction operator, 
-    the following line from the main function no longer works. Why?
-
-    The non-const multiplication operator looks like this
-
-    Fraction operator*(Fraction &f1, Fraction &f2)
-
-    This doesn't work anymore
-
-    Fraction f6{ Fraction{1, 2} * Fraction{2, 3} * Fraction{3, 4} };
-
-    We’re multiplying temporary Fraction objects,
-    but non-const references cannot bind to temporaries.
-    
-    */
 
 }
 
